@@ -413,6 +413,7 @@ AC_OUTPUT(
       debian/libhttpserver-dev.install
       debian/libhttpserver.install
       debian/rules
+      debian/compat
       redhat/libhttpserver.SPEC
 )
 
