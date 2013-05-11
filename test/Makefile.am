@@ -15,6 +15,15 @@
 #     You should have received a copy of the GNU Lesser General Public
 #     License along with this library; if not, write to the Free Software
 #     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-#
-$(srcdir)/webserver_wrap.cpp $(srcdir)/webserver_wrap.h $(swigscripts): $(srcdir)/../httpserver.hpp $(srcdir)/../httpserver/webserver.hpp $(srcdir)/../httpserver/http_response.hpp $(srcdir)/../httpserver/http_request.hpp $(srcdir)/../httpserver/http_resource.hpp $(srcdir)/../httpserver/http_endpoint.hpp $(srcdir)/../httpserver/http_utils.hpp
-	swig -c++ -$(language) $(swigoptions) -o $(srcdir)/webserver_wrap.cpp -I$(srcdir)/.. -I$(srcdir)/../httpserver $(srcdir)/../httpserver.hpp
+
+LDADD = $(top_builddir)/src/libhttpserver.la
+INCLUDES = -I$(top_srcdir)/src -I$(top_srcdir)/src/httpserver/
+METASOURCES = AUTO
+check_PROGRAMS = basic
+
+basic_SOURCES = basic.cpp 
+
+noinst_HEADERS = littletest.hpp
+AM_CXXFLAGS += -lcurl -Wall -fPIC
+
+TESTS = $(check_PROGRAMS)

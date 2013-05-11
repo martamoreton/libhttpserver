@@ -14,8 +14,8 @@
 
      You should have received a copy of the GNU Lesser General Public
      License along with this library; if not, write to the Free Software
-     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
+     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 
+     USA
 */
 
 #if !defined (_HTTPSERVER_HPP_INSIDE_) && !defined (HTTPSERVER_COMPILATION)
@@ -190,80 +190,28 @@ class http_request
         }
         /**
          * Method used to get all headers passed with the request.
-         * @return a vector<pair<string,string> > containing all headers.
-        **/
-        const std::vector<std::pair<std::string, std::string> > get_headers() const;
-        /**
-         * Method used to get all headers passed with the request.
-         * @param result a vector<pair<string, string> > that will be filled with all headers
-         * @result the size of the vector
-        **/
-        size_t get_headers(std::vector<std::pair<std::string, std::string> >& result) const;
-#ifndef SWIG
-        /**
-         * Method used to get all headers passed with the request.
          * @param result a map<string, string> > that will be filled with all headers
          * @result the size of the map
         **/
         size_t get_headers(std::map<std::string, std::string, header_comparator>& result) const;
-#endif
-        /**
-         * Method used to get all footers passed with the request.
-         * @return a vector<pair<string,string> > containing all footers.
-        **/
-        const std::vector<std::pair<std::string, std::string> > get_footers() const;
-        /**
-         * Method used to get all footers passed with the request.
-         * @param result a vector<pair<string, string> > that will be filled with all footers
-         * @result the size of the vector
-        **/
-        size_t get_footers(std::vector<std::pair<std::string, std::string> >& result) const;
-#ifndef SWIG
         /**
          * Method used to get all footers passed with the request.
          * @param result a map<string, string> > that will be filled with all footers
          * @result the size of the map
         **/
         size_t get_footers(std::map<std::string, std::string, header_comparator>& result) const;
-#endif
-        /**
-         * Method used to get all cookies passed with the request.
-         * @return a vector<pair<string, string> > containing all cookies.
-        **/
-        const std::vector<std::pair<std::string, std::string> > get_cookies() const;
-        /**
-         * Method used to get all cookies passed with the request.
-         * @param result a vector<pair<string, string> > that will be filled with all cookies
-         * @result the size of the vector
-        **/
-        size_t get_cookies(std::vector<std::pair<std::string, std::string> >& result) const;
-#ifndef SWIG
         /**
          * Method used to get all cookies passed with the request.
          * @param result a map<string, string> > that will be filled with all cookies
          * @result the size of the map
         **/
         size_t get_cookies(std::map<std::string, std::string, header_comparator>& result) const;
-#endif
-        /**
-         * Method used to get all parameters passed with the request. Usually parameters are passed with DELETE or GET methods.
-         * @return a map<string,string> containing all parameters.
-        **/
-        const std::vector<std::pair<std::string, std::string> > get_args() const;
-        /**
-         * Method used to get all args passed with the request.
-         * @param result a vector<pair<string, string> > that will be filled with all args
-         * @result the size of the vector
-        **/
-        size_t get_args(std::vector<std::pair<std::string, std::string> >& result) const;
-#ifndef SWIG
         /**
          * Method used to get all args passed with the request.
          * @param result a map<string, string> > that will be filled with all args
          * @result the size of the map
         **/
         size_t get_args(std::map<std::string, std::string, arg_comparator>& result) const;
-#endif
         /**
          * Method used to get a specific header passed with the request.
          * @param key the specific header to get the value from
@@ -271,7 +219,8 @@ class http_request
         **/
         const std::string get_header(const std::string& key) const
         {
-            std::map<std::string, std::string>::const_iterator it = this->headers.find(key);
+            std::map<std::string, std::string>::const_iterator it = 
+                this->headers.find(key);
             if(it != this->headers.end())
                 return it->second;
             else
@@ -279,7 +228,8 @@ class http_request
         }
         void get_header(const std::string& key, std::string& result) const
         {
-            std::map<std::string, std::string>::const_iterator it = this->headers.find(key);
+            std::map<std::string, std::string>::const_iterator it = 
+                this->headers.find(key);
             if(it != this->headers.end())
                 result = it->second;
             else
@@ -287,7 +237,8 @@ class http_request
         }
         const std::string get_cookie(const std::string& key) const
         {
-            std::map<std::string, std::string>::const_iterator it = this->cookies.find(key);
+            std::map<std::string, std::string>::const_iterator it =
+                this->cookies.find(key);
             if(it != this->cookies.end())
                 return it->second;
             else
@@ -295,7 +246,8 @@ class http_request
         }
         void get_cookie(const std::string& key, std::string& result) const
         {
-            std::map<std::string, std::string>::const_iterator it = this->cookies.find(key);
+            std::map<std::string, std::string>::const_iterator it =
+                this->cookies.find(key);
             if(it != this->cookies.end())
                 result = it->second;
             else
@@ -308,7 +260,8 @@ class http_request
         **/
         const std::string get_footer(const std::string& key) const
         {
-            std::map<std::string, std::string>::const_iterator it = this->footers.find(key);
+            std::map<std::string, std::string>::const_iterator it =
+                this->footers.find(key);
             if(it != this->footers.end())
                 return it->second;
             else
@@ -316,7 +269,8 @@ class http_request
         }
         void get_footer(const std::string& key, std::string& result) const
         {
-            std::map<std::string, std::string>::const_iterator it = this->footers.find(key);
+            std::map<std::string, std::string>::const_iterator it =
+                this->footers.find(key);
             if(it != this->footers.end())
                 result = it->second;
             else
@@ -329,7 +283,8 @@ class http_request
         **/
         const std::string get_arg(const std::string& key) const
         {
-            std::map<std::string, std::string>::const_iterator it = this->args.find(key);
+            std::map<std::string, std::string>::const_iterator it =
+                this->args.find(key);
             if(it != this->args.end())
                 return it->second;
             else
@@ -337,7 +292,8 @@ class http_request
         }
         void get_arg(const std::string& key, std::string& result) const
         {
-            std::map<std::string, std::string>::const_iterator it = this->args.find(key);
+            std::map<std::string, std::string>::const_iterator it =
+                this->args.find(key);
             if(it != this->args.end())
                 result = it->second;
             else
@@ -395,7 +351,10 @@ class http_request
         {
             return this->requestor_port;
         }
-        bool check_digest_auth(const std::string& realm, const std::string& password, int nonce_timeout, bool& reload_nonce) const;
+        bool check_digest_auth(const std::string& realm,
+                const std::string& password,
+                int nonce_timeout, bool& reload_nonce
+        ) const;
     private:
         /**
          * Default constructor of the class. It is a specific responsibility of apis to initialize this type of objects.

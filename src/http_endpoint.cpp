@@ -14,9 +14,10 @@
 
      You should have received a copy of the GNU Lesser General Public
      License along with this library; if not, write to the Free Software
-     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
+     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 
+     USA
 */
+
 #include "http_endpoint.hpp"
 #include "http_utils.hpp"
 #include "string_utilities.hpp"
@@ -31,7 +32,6 @@ using namespace http;
 namespace details
 {
 
-//ENDPOINT
 http_endpoint::~http_endpoint()
 {
     if(reg_compiled)
@@ -39,7 +39,14 @@ http_endpoint::~http_endpoint()
         regfree(&(this->re_url_modded));
     }
 }
-http_endpoint::http_endpoint(const string& url, bool family, bool registration, bool use_regex):
+
+http_endpoint::http_endpoint
+(
+    const string& url,
+    bool family,
+    bool registration,
+    bool use_regex
+):
     family_url(family),
     reg_compiled(false)
 {
@@ -49,6 +56,10 @@ http_endpoint::http_endpoint(const string& url, bool family, bool registration, 
         this->url_modded = "/";
     vector<string> parts;
     string_utilities::to_lower_copy(url, url_complete);
+
+    if(url_complete[0] != '/')
+        url_complete = "/" + url_complete;
+
     http_utils::tokenize_url(url, parts);
     string buffered;
     bool first = true;
@@ -77,7 +88,11 @@ http_endpoint::http_endpoint(const string& url, bool family, bool registration, 
             } 
             else 
             {
-                if(( parts[i].size() >= 3) && (parts[i][0] == '{') && (parts[i][parts[i].size() - 1] == '}') ) 
+                if(
+                    (parts[i].size() >= 3) && 
+                    (parts[i][0] == '{') && 
+                    (parts[i][parts[i].size() - 1] == '}') 
+                ) 
                 {
                     int bar = parts[i].find_first_of('|');
                     if(bar != (int)string::npos)
@@ -85,17 +100,23 @@ http_endpoint::http_endpoint(const string& url, bool family, bool registration, 
                         this->url_pars.push_back(parts[i].substr(1, bar - 1));
                         if(first)
                         {
-                            this->url_modded += parts[i].substr(bar + 1, parts[i].size() - bar - 2);
+                            this->url_modded += parts[i].substr(
+                                    bar + 1, parts[i].size() - bar - 2
+                            );
                             first = false;
                         }
                         else
                         {
-                            this->url_modded += "/"+parts[i].substr(bar + 1, parts[i].size() - bar - 2);
+                            this->url_modded += "/"+parts[i].substr(
+                                    bar + 1, parts[i].size() - bar - 2
+                            );
                         }
                     }
                     else
                     {
-                        this->url_pars.push_back(parts[i].substr(1,parts[i].size() - 2));
+                        this->url_pars.push_back(
+                                parts[i].substr(1,parts[i].size() - 2)
+                        );
                         if(first)
                         {
                             this->url_modded += "([^\\/]+)";
@@ -135,7 +156,9 @@ http_endpoint::http_endpoint(const string& url, bool family, bool registration, 
     if(use_regex)
     {
         this->url_modded += "$";
-        regcomp(&(this->re_url_modded), url_modded.c_str(), REG_EXTENDED|REG_ICASE|REG_NOSUB);
+        regcomp(&(this->re_url_modded), url_modded.c_str(), 
+                REG_EXTENDED|REG_ICASE|REG_NOSUB
+        );
         reg_compiled = true;
     }
 }
@@ -150,7 +173,9 @@ http_endpoint::http_endpoint(const http_endpoint& h):
     reg_compiled(h.reg_compiled)
 {
     if(this->reg_compiled)
-        regcomp(&(this->re_url_modded), url_modded.c_str(), REG_EXTENDED|REG_ICASE|REG_NOSUB);
+        regcomp(&(this->re_url_modded), url_modded.c_str(), 
+                REG_EXTENDED|REG_ICASE|REG_NOSUB
+        );
 }
 
 http_endpoint& http_endpoint::operator =(const http_endpoint& h)
@@ -160,7 +185,9 @@ http_endpoint& http_endpoint::operator =(const http_endpoint& h)
     this->family_url = h.family_url;
     this->reg_compiled = h.reg_compiled;
     if(this->reg_compiled)
-        regcomp(&(this->re_url_modded), url_modded.c_str(), REG_EXTENDED|REG_ICASE|REG_NOSUB);
+        regcomp(&(this->re_url_modded), url_modded.c_str(), 
+                REG_EXTENDED|REG_ICASE|REG_NOSUB
+        );
     this->url_pars = h.url_pars;
     this->url_pieces = h.url_pieces;
     this->chunk_positions = h.chunk_positions;
@@ -169,11 +196,7 @@ http_endpoint& http_endpoint::operator =(const http_endpoint& h)
 
 bool http_endpoint::operator <(const http_endpoint& b) const 
 {
-    string url_modded_l;
-    string url_modded_r;
-    string_utilities::to_lower_copy(this->url_modded, url_modded_l);
-    string_utilities::to_lower_copy(b.url_modded, url_modded_r);
-    return url_modded_l < url_modded_r;
+    COMPARATOR(this->url_modded, b.url_modded, toupper);
 }
 
 bool http_endpoint::match(const http_endpoint& url) const 
@@ -197,7 +220,8 @@ bool http_endpoint::match(const http_endpoint& url) const
         return regexec(&(this->re_url_modded), nn.c_str(), 0, NULL, 0) == 0;
     }
     else
-        return regexec(&(this->re_url_modded), url.url_modded.c_str(), 0, NULL, 0) == 0;
+        return regexec(&(this->re_url_modded), 
+                url.url_modded.c_str(), 0, NULL, 0) == 0;
 }
 
 };

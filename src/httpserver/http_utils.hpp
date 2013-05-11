@@ -14,8 +14,8 @@
 
      You should have received a copy of the GNU Lesser General Public
      License along with this library; if not, write to the Free Software
-     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-
+     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 
+     USA
 */
 
 #if !defined (_HTTPSERVER_HPP_INSIDE_) && !defined (HTTPSERVER_COMPILATION)
@@ -48,6 +48,14 @@ class bad_ip_format_exception: public std::exception
     }
 };
 
+class file_access_exception: public std::exception
+{
+    virtual const char* what() const throw()
+    {
+        return "Unable to open file!";
+    }
+}; 
+
 class http_utils 
 {
     public:
@@ -66,7 +74,7 @@ class http_utils
 
     enum start_method_T
     {
-        INTERNAL_SELECT = MHD_USE_SELECT_INTERNALLY,
+        INTERNAL_SELECT = MHD_NO_FLAG,
         THREADS = MHD_USE_THREAD_PER_CONNECTION,
         POLL = MHD_USE_THREAD_PER_CONNECTION | MHD_USE_POLL
     };
@@ -81,10 +89,6 @@ class http_utils
     {
         IPV4 = 4, IPV6 = 16
     };
-
-#ifdef SWIG
-        %immutable;
-#endif
 
         static const short http_method_connect_code;
         static const short http_method_delete_code;
@@ -219,12 +223,28 @@ class http_utils
 
         static const std::string http_post_encoding_form_urlencoded;
         static const std::string http_post_encoding_multipart_formdata;
-#ifdef SWIG
-        %mutable;
-#endif
-        static size_t tokenize_url(const std::string&, std::vector<std::string>& result, const char separator = '/');
+        static size_t tokenize_url(const std::string&, 
+                std::vector<std::string>& result, const char separator = '/'
+        );
         static void standardize_url(const std::string&, std::string& result);
 };
+
+#define COMPARATOR(x, y, op) \
+    { \
+        size_t l1 = (x).size();\
+        size_t l2 = (y).size();\
+        if (l1 < l2) return true;\
+        if (l1 > l2) return false;\
+        \
+        for (size_t n = 0; n < l1; n++)\
+        {\
+            char xc = op((x)[n]);\
+            char yc = op((y)[n]);\
+            if (xc < yc) return true;\
+            if (xc > yc) return false;\
+        }\
+        return false;\
+    }
 
 class header_comparator {
     public:
@@ -235,19 +255,7 @@ class header_comparator {
         **/
         bool operator()(const std::string& x,const std::string& y) const 
         { 
-            size_t l1 = x.size();
-            size_t l2 = y.size();
-            if (l1 < l2) return true;
-            if (l1 > l2) return false;
-
-            for (size_t n = 0; n < l1; n++)
-            {
-                char a = toupper(x[n]);
-                char b = toupper(y[n]);
-                if (a < b) return true;
-                if (a > b) return false;
-            }
-            return false;
+            COMPARATOR(x, y, toupper);
         }
 };
 
@@ -265,24 +273,11 @@ class arg_comparator {
         **/
         bool operator()(const std::string& x,const std::string& y) const 
         { 
-            size_t l1 = x.size();
-            size_t l2 = y.size();
-            if (l1 < l2) return true;
-            if (l1 > l2) return false;
-
-            for (size_t n = 0; n < l1; n++)
-            {
 #ifdef CASE_INSENSITIVE
-                char a = toupper(x[n]);
-                char b = toupper(y[n]);
+            COMPARATOR(x, y, toupper);
 #else
-                char a = x[n];
-                char b = y[n];
+            COMPARATOR(x, y, );
 #endif
-                if (a < b) return true;
-                if (a > b) return false;
-            }
-            return false;
         }
 };
 
@@ -292,7 +287,8 @@ struct ip_representation
     unsigned short pieces[16];
     unsigned int mask:16;
 
-    ip_representation(http_utils::IP_version_T ip_version) : ip_version(ip_version)
+    ip_representation(http_utils::IP_version_T ip_version) :
+        ip_version(ip_version)
     {
         mask = DEFAULT_MASK_VALUE;
         std::fill(pieces, pieces + 16, 0);
@@ -318,7 +314,13 @@ struct ip_representation
  * @param maxlen Maxlen of the address (automatically discovered if not passed)
  * @return string containing the ip address
 **/
-void get_ip_str(const struct sockaddr *sa, std::string& result, socklen_t maxlen = 0);
+void get_ip_str(const struct sockaddr *sa,
+    std::string& result, socklen_t maxlen = 0
+);
+
+std::string get_ip_str_new(const struct sockaddr* sa,
+    socklen_t maxlen = 0
+);
 /**
  * Method used to get a port from a sockaddr
  * @param sa The sockaddr object to find the port from
@@ -341,6 +343,44 @@ const struct sockaddr str_to_ip(const std::string& src);
 char* load_file (const char *filename);
 
 size_t load_file (const char* filename, char** content);
+
+struct httpserver_ska
+{
+        httpserver_ska(struct sockaddr* addr):
+            addr(addr),
+            ip(get_ip_str_new(addr)),
+            port(get_port(addr))
+        {
+        }
+
+        httpserver_ska(): addr(0x0) { }
+
+        httpserver_ska(const httpserver_ska& o): addr(o.addr) { }
+
+        bool operator<(const httpserver_ska& o) const
+        {
+            if(this->ip < o.ip)
+                return true;
+            else if(this->ip > o.ip)
+                return false;
+            else if(this->port < o.port)
+                return true;
+            else
+                return false;
+        }
+
+        httpserver_ska& operator=(const httpserver_ska& o)
+        {
+            this->addr = o.addr;
+            return *this;
+        }
+
+        struct sockaddr* addr;
+        std::string ip;
+        int port;
+};
+
+
 
 };
 };
